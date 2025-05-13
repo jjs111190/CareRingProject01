@@ -1,103 +1,98 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import HomeScreen from './HomeScreen';
+import ProfileScreen from './ProfileScreen';
 
-const HomeScreen = () => <View style={styles.screen}><Text>Home</Text></View>;
-const AIPhotoScreen = () => <View style={styles.screen}><Text>AI Photo</Text></View>;
-const CalendarScreen = () => <View style={styles.screen}><Text>Calendar</Text></View>;
-const ProfileScreen = () => <View style={styles.screen}><Text>Profile</Text></View>;
+const AIPhotoScreen = () => (
+  <View style={styles.screen}>
+    <Text>AI Photo</Text>
+  </View>
+);
+const CalendarScreen = () => (
+  <View style={styles.screen}>
+    <Text>Calendar</Text>
+  </View>
+);
 
-const CustomTabButton = ({ children, onPress }) => (
+const CustomTabButton = ({ onPress }) => (
   <TouchableOpacity style={styles.customButtonContainer} onPress={onPress}>
-    <View style={styles.customButton}>
-      {children}
-    </View>
+    <Image source={require('../../assets/add.png')} style={styles.addIconImage} />
   </TouchableOpacity>
 );
 
 const Tab = createBottomTabNavigator();
 
+// 커스텀 아이콘 컴포넌트 (이미지 사용)
+const CustomIcon = ({ source }) => (
+  <View style={styles.iconContainer}>
+    <Image source={source} style={styles.iconImage} />
+  </View>
+);
+
 const TabNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar,
-      }}
-    >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
+    <Tab.Navigator screenOptions={{ tabBarShowLabel: false, tabBarStyle: styles.tabBar }}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
         options={{
+          headerShown: false,
           tabBarIcon: () => (
             <View style={styles.iconContainer}>
-              <Image
-                source={require('../../assets/home.png')}
-                style={styles.icon}
-              />
+              <CustomIcon source={require('../../assets/home.png')} />
               <Text style={styles.iconText}>Home</Text>
             </View>
           ),
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="AI Photo" 
-        component={AIPhotoScreen} 
+      <Tab.Screen
+        name="AI Photo"
+        component={AIPhotoScreen}
         options={{
+          headerShown: false,
           tabBarIcon: () => (
             <View style={styles.iconContainer}>
-              <Image
-                source={require('../../assets/camera.png')}
-                style={styles.icon}
-              />
+              <CustomIcon source={require('../../assets/camera.png')} />
               <Text style={styles.iconText}>AI Photo</Text>
             </View>
           ),
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="Add" 
-        component={HomeScreen} 
+      <Tab.Screen
+        name="Add"
+        component={HomeScreen}
         options={{
+          headerShown: false,
           tabBarButton: (props) => <CustomTabButton {...props} />,
-          tabBarIcon: () => (
-            <Image
-              source={require('../../assets/add.png')}
-              style={styles.customIcon}
-            />
-          ),
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="Calendar" 
-        component={CalendarScreen} 
+      <Tab.Screen
+        name="Calendar"
+        component={CalendarScreen}
         options={{
+          headerShown: false,
           tabBarIcon: () => (
             <View style={styles.iconContainer}>
-              <Image
-                source={require('../../assets/Calendar1.png')}
-                style={styles.icon}
-              />
+              <CustomIcon source={require('../../assets/Calendar1.png')} />
               <Text style={styles.iconText}>Calendar</Text>
             </View>
           ),
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="Profile" 
-        component={ProfileScreen} 
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}  // ProfileScreen으로 설정
         options={{
+          headerShown: false,
           tabBarIcon: () => (
-            <View style={styles.iconContainer}>
-              <Image
-                source={require('../../assets/profile.png')}
-                style={styles.icon}
-              />
-              <Text style={styles.iconText}>Profile</Text>
-            </View>
-          ),
-        }} 
-      />
+          <View style={styles.iconContainer}>
+            <CustomIcon source={require('../../assets/profile.png')} />
+            <Text style={styles.iconText}>Profile</Text>
+        </View>
+      ),
+    }}
+    />
     </Tab.Navigator>
   );
 };
@@ -117,40 +112,38 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 15,
     height: 70,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
+    paddingBottom: 10,
   },
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  customButtonContainer: {
-    top: -10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  customButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#678CC8',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: {
-     top: 10,
-    width: 50,   // 아이콘 크기 조정
-    height: 50,  // 아이콘 크기 조정
-  },
   iconText: {
-    fontSize: 7, // 텍스트 크기
-    color: '#888', // 텍스트 색상
-    marginTop: 6,  // 아이콘과 텍스트 간격
+    fontSize: 7,
+    color: '#888',
+    top: 3,
   },
-  customIcon: {
+  customButtonContainer: {
+    position: 'absolute',
+    top: -20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#678CC8',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  addIconImage: {
+    width: 50,
+    height: 50,
+  },
+  iconImage: {
+    top: 10,
     width: 50,
     height: 50,
   },

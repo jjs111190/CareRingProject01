@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import TabNavigator from './TabNavigator';
 
 const PostCard = ({ image }: { image?: string }) => (
   <View style={styles.card}>
     <View style={styles.userInfo}>
       <Image source={require('../../assets/user-icon.png')} style={styles.userIcon} />
-      <Text style={styles.userName}>user name</Text>
-      <Text style={styles.userInfoText}>Gangnam-gu, Seoul - student</Text>
+      <View style={styles.userDetails}>
+        <Text style={styles.userName}>user name</Text>
+        <Text style={styles.userInfoText}>Gangnam-gu, Seoul - student</Text>
+      </View>
       <TouchableOpacity style={styles.moreButton}>
         <Text style={styles.moreText}>•••</Text>
       </TouchableOpacity>
@@ -15,37 +16,22 @@ const PostCard = ({ image }: { image?: string }) => (
     <Text style={styles.postText}>I have diabetes. Can I take protein pills?</Text>
     {image && <Image source={{ uri: image }} style={styles.postImage} />}
     <View style={styles.reactionBar}>
-      <Text style={styles.reactionText}>10</Text>
-      <Ionicons name="heart-outline" size={20} color="#888" />
-      <Text style={styles.reactionText}>10</Text>
-      <Ionicons name="share-outline" size={20} color="#888" />
+      <TouchableOpacity style={styles.reactionItem}>
+        <Image source={require('../../assets/heart.png')} style={styles.iconImage} />
+        <Text style={styles.reactionText}>10</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.reactionItem}>
+        <Image source={require('../../assets/comment.png')} style={styles.iconImage} />
+        <Text style={styles.reactionText}>10</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.reactionItem}>
+        <Image source={require('../../assets/link.png')} style={styles.linkIcon} />
+      </TouchableOpacity>
     </View>
   </View>
 );
 
-const HomeScreen: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>CareRing</Text>
-      <PostCard />
-      <PostCard image="https://via.placeholder.com/300" />
-      <PostCard />
-      <TabNavigator />
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#678CC8',
-    margin: 20,
-  },
   card: {
     backgroundColor: '#FFFFFF',
     margin: 10,
@@ -67,7 +53,6 @@ const styles = StyleSheet.create({
   },
   userInfoText: {
     color: '#888',
-    marginLeft: 5,
   },
   moreButton: {
     marginLeft: 'auto',
@@ -88,11 +73,23 @@ const styles = StyleSheet.create({
   },
   reactionBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+  },
+  reactionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   reactionText: {
-    marginHorizontal: 5,
+    marginLeft: 5,
+  },
+  iconImage: {
+    width: 20,
+    height: 20,
+  },
+  linkIcon: {
+    width: 20,
+    height: 20,
   },
 });
 
-export default HomeScreen;
+export default PostCard;

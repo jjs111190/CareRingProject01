@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  Alert, 
+  StyleSheet, 
+  Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { globalStyles } from '../styles/globalStyles';
+import { scale } from '../utils/scale';  // 수정된 부분
 
 const LifestyleScreen: React.FC = () => {
   const [medicalHistory, setMedicalHistory] = useState<string>('');
@@ -11,96 +23,114 @@ const LifestyleScreen: React.FC = () => {
   const [smokingAlcohol, setSmokingAlcohol] = useState<string>('');
   const navigation = useNavigation();
 
-  // Finish 버튼 클릭 시 처리
   const handleFinish = () => {
     if (!medicalHistory || !healthGoals || !dietTracking || !sleepHabits || !smokingAlcohol) {
       Alert.alert('Error', 'Please fill out all fields.');
       return;
     }
-    //Alert.alert('Success', 'Lifestyle information saved!');
-    navigation.navigate('Intro');  // 메인 화면으로 이동
+    navigation.navigate('Intro');
   };
 
   return (
-    <View style={globalStyles.container}>
-      {/* Back Button */}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={globalStyles.container}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      {/* 고정 백 버튼 */}
       <TouchableOpacity 
-        style={{ position: 'absolute', top: 30, left: 20 }}
+        style={localStyles.backButton}
         onPress={() => navigation.goBack()}
       >
-        <Image source={require('../../assets/back.png')} style={{ width: 30, height: 30 }} />
+        <Image 
+          source={require('../../assets/back.png')} 
+          style={localStyles.backIcon} 
+        />
       </TouchableOpacity>
 
-      {/* 타이틀과 설명 */}
-      <Text style={[globalStyles.title, localStyles.smallTitle]}>Lifestyle & Health Habits</Text>
-      <Text style={[globalStyles.subtitle, localStyles.smallSubtitle]}>I need some brief information from you</Text>
+      <ScrollView
+        contentContainerStyle={localStyles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={[globalStyles.title, localStyles.smallTitle]}>Lifestyle & Health Habits</Text>
+        <Text style={[globalStyles.subtitle, localStyles.smallSubtitle]}>I need some brief information from you</Text>
 
-      {/* Medical History */}
-      <View style={globalStyles.inputContainer}>
-        <Text style={globalStyles.label}>Medical history / chronic conditions</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={medicalHistory} 
-          onChangeText={setMedicalHistory} 
-        />
-      </View>
+        <View style={globalStyles.inputContainer}>
+          <Text style={globalStyles.label}>Medical history / chronic conditions</Text>
+          <TextInput 
+            style={globalStyles.input} 
+            value={medicalHistory} 
+            onChangeText={setMedicalHistory} 
+          />
+        </View>
 
-      {/* Health Goals */}
-      <View style={globalStyles.inputContainer}>
-        <Text style={globalStyles.label}>Health goals</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={healthGoals} 
-          onChangeText={setHealthGoals} 
-        />
-      </View>
+        <View style={globalStyles.inputContainer}>
+          <Text style={globalStyles.label}>Health goals</Text>
+          <TextInput 
+            style={globalStyles.input} 
+            value={healthGoals} 
+            onChangeText={setHealthGoals} 
+          />
+        </View>
 
-      {/* Diet and Nutrition Tracking */}
-      <View style={globalStyles.inputContainer}>
-        <Text style={globalStyles.label}>Diet and nutrition tracking</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={dietTracking} 
-          onChangeText={setDietTracking} 
-        />
-      </View>
+        <View style={globalStyles.inputContainer}>
+          <Text style={globalStyles.label}>Diet and nutrition tracking</Text>
+          <TextInput 
+            style={globalStyles.input} 
+            value={dietTracking} 
+            onChangeText={setDietTracking} 
+          />
+        </View>
 
-      {/* Sleep and Physical Activity Habits */}
-      <View style={globalStyles.inputContainer}>
-        <Text style={globalStyles.label}>Sleep and physical activity habits</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={sleepHabits} 
-          onChangeText={setSleepHabits} 
-        />
-      </View>
+        <View style={globalStyles.inputContainer}>
+          <Text style={globalStyles.label}>Sleep and physical activity habits</Text>
+          <TextInput 
+            style={globalStyles.input} 
+            value={sleepHabits} 
+            onChangeText={setSleepHabits} 
+          />
+        </View>
 
-      {/* Smoking/Alcohol Consumption Status */}
-      <View style={globalStyles.inputContainer}>
-        <Text style={globalStyles.label}>Smoking/alcohol consumption status</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={smokingAlcohol} 
-          onChangeText={setSmokingAlcohol} 
-        />
-      </View>
+        <View style={globalStyles.inputContainer}>
+          <Text style={globalStyles.label}>Smoking/alcohol consumption status</Text>
+          <TextInput 
+            style={globalStyles.input} 
+            value={smokingAlcohol} 
+            onChangeText={setSmokingAlcohol} 
+          />
+        </View>
 
-      {/* Finish Button */}
-      <TouchableOpacity style={globalStyles.button} onPress={handleFinish}>
-        <Text style={globalStyles.buttonText}>Finish</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={globalStyles.button} onPress={handleFinish}>
+          <Text style={globalStyles.buttonText}>Finish</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
-// 🌟 개별 스타일 정의
 const localStyles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    padding: scale(16),      // scale 함수 사용
+    paddingTop: scale(70),   // scale 함수 사용
+  },
+  backButton: {
+    position: 'absolute',
+    top: scale(40),          // scale 함수 사용
+    left: scale(20),         // scale 함수 사용
+    zIndex: 1000,
+  },
+  backIcon: {
+    width: scale(30),        // scale 함수 사용
+    height: scale(30),       // scale 함수 사용
+  },
   smallTitle: {
-    fontSize: 30,
+    fontSize: scale(30),     // scale 함수 사용
+    marginBottom: scale(8),  // scale 함수 사용
   },
   smallSubtitle: {
-    fontSize: 14,
-    marginBottom: 30,
+    fontSize: scale(14),     // scale 함수 사용
+    marginBottom: scale(30), // scale 함수 사용
   },
 });
 

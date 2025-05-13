@@ -13,20 +13,19 @@ import LifestyleScreen from './src/screens/LifestyleScreen';
 import IntroScreen from './src/screens/IntroScreen';
 import IntroStep2Screen from './src/screens/IntroStep2Screen';
 import IntroStep3Screen from './src/screens/IntroStep3Screen';
-import TabNavigator from './src/screens/TabNavigator';  // 하단 탭 네비게이터
+import TabNavigator from './src/screens/TabNavigator';
 
 const Stack = createStackNavigator();
 
 const App = () => {
   const [initialRoute, setInitialRoute] = useState<string>('Login');
 
-  // 초기 경로 설정 (AsyncStorage 사용)
   useEffect(() => {
     const checkInitialRoute = async () => {
       try {
         const seenIntro = await AsyncStorage.getItem('hasSeenIntro');
         if (seenIntro) {
-          setInitialRoute('Login');
+          setInitialRoute('Home');
         } else {
           setInitialRoute('Intro');
         }
@@ -39,47 +38,21 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator 
-        initialRouteName={initialRoute} 
-        screenOptions={{ headerShown: false }}
-      >
+      <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
         {/* 인트로 화면들 */}
-        <Stack.Screen 
-          name="Intro" 
-          component={IntroScreen} 
-          options={{ 
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, 
-            gestureDirection: 'horizontal',
-          }} 
-        />
-        <Stack.Screen 
-          name="IntroStep2Screen" 
-          component={IntroStep2Screen} 
-          options={{ 
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, 
-            gestureDirection: 'horizontal',
-          }} 
-        />
-        <Stack.Screen 
-          name="IntroStep3Screen" 
-          component={IntroStep3Screen} 
-          options={{ 
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, 
-            gestureDirection: 'horizontal',
-          }} 
-        />
+        <Stack.Screen name="Intro" component={IntroScreen} />
+        <Stack.Screen name="IntroStep2Screen" component={IntroStep2Screen} />
+        <Stack.Screen name="IntroStep3Screen" component={IntroStep3Screen} />
 
         {/* 로그인 관련 화면 */}
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
-
-        {/* 사용자 기본 정보 입력 화면 */}
-        <Stack.Screen name="BasicInfo" component={BasicInfoScreen} />
         <Stack.Screen name="Loading" component={LoadingScreen} />
+        <Stack.Screen name="BasicInfo" component={BasicInfoScreen} />
         <Stack.Screen name="Lifestyle" component={LifestyleScreen} />
 
-        {/* 하단 탭 네비게이터 (메인 화면) */}
+        {/* 메인 화면 (Tab Navigator) */}
         <Stack.Screen 
           name="Home" 
           component={TabNavigator} 

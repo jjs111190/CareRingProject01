@@ -1,7 +1,8 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
-const scale = (size: number) => (width / 375) * size;
+const SCALE_FACTOR = 375;
+const scale = (size: number) => (width / SCALE_FACTOR) * size;
 
 export const globalStyles = StyleSheet.create({
   // 공통 컨테이너 스타일
@@ -27,43 +28,43 @@ export const globalStyles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // 프로필 이미지 스타일
-  profileImageContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: scale(20),
-  },
-  profileImage: {
-    width: scale(100),
-    height: scale(100),
-    borderRadius: scale(50),
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    marginBottom: scale(8),
-  },
-
   // 입력 필드 스타일
   inputContainer: {
     width: '90%',
     marginBottom: scale(12),
   },
-  label: {
-    color: '#4B5563',
-    marginBottom: scale(4),
-    fontSize: scale(13),
+  formGroup: {
+    width: '90%',
+    marginBottom: scale(16),
+  },
+  halfInputLeft: {
+    flex: 1,
+    marginRight: scale(8),
+  },
+  halfInputRight: {
+    flex: 1,
+    marginLeft: scale(8),
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: scale(12),
-    fontSize: scale(13),
-    height: scale(44),  // 모든 input 필드 높이를 통일
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    padding: scale(14),
+    fontSize: scale(15),
+    height: scale(48),
+    backgroundColor: '#F9FAFB',
+    paddingRight: scale(40), // 추가 수정
+  },
+  label: {
+    color: '#374151',
+    marginBottom: scale(6),
+    fontSize: scale(14),
+    fontWeight: '500',
   },
   unitText: {
     position: 'absolute',
     right: scale(16),
-    top: scale(12),
+    top: scale(38), // 높이 조정
     color: '#6B7280',
   },
 
@@ -71,9 +72,13 @@ export const globalStyles = StyleSheet.create({
   button: {
     width: '90%',
     backgroundColor: '#678CC8',
-    borderRadius: 8,
-    padding: scale(14),
+    borderRadius: 12,
+    paddingVertical: scale(16),
     marginBottom: scale(24),
+    shadowColor: '#678CC8',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
   },
   buttonText: {
     color: '#FFFFFF',
@@ -116,6 +121,33 @@ export const globalStyles = StyleSheet.create({
   linkText: {
     color: '#3B82F6',
     fontSize: scale(14),
+    textTransform: 'uppercase',  // 추가 수정
+    letterSpacing: 0.5,          // 추가 수정
+  },
+
+  // 비밀번호 관련 스타일
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginTop: scale(4),
+  },
+  forgotPasswordText: {
+    color: '#3B82F6',
+    fontSize: scale(14),
+  },
+
+  // 프로필 이미지 스타일
+  profileImageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: scale(30), // 기존 20에서 30으로 수정
+  },
+  profileImage: {
+    width: scale(100),
+    height: scale(100),
+    borderRadius: scale(50),
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    marginBottom: scale(8),
   },
 
   // 뒤로가기 버튼 스타일
@@ -129,56 +161,59 @@ export const globalStyles = StyleSheet.create({
     height: scale(30),
   },
 
-  // 비밀번호 관련 스타일
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: scale(4),
+  // 로딩 화면 스타일
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#678CC8',
   },
-  forgotPasswordText: {
-    color: '#3B82F6',
-    fontSize: scale(14),
+  loadingLogoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  loadingLogo: {
+    width: scale(80),
+    height: scale(80),
+  },
+  loadingText: {
+    fontSize: scale(50),
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginLeft: scale(8),
+  },
+  loadingSpinner: {
+    marginTop: scale(20),
   },
 
-  // 행 스타일 (행 배치)
+  // 행 스타일
   rowContainer: {
     flexDirection: 'row',
     width: '90%',
   },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 
   // 선택기 스타일 (Picker)
   pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    height: scale(44),  // 높이 통일
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    backgroundColor: '#F9FAFB',
+    height: scale(48),
     justifyContent: 'center',
-    fontSize: 10,
+    fontSize: scale(15),
   },
   picker: {
-    height: scale(44),
-    fontSize: 10,
+    height: scale(48),
+    fontSize: scale(15),
   },
-loadingContainer: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#678CC8',
-},
-logoRow: {
-  flexDirection: 'row',       // 로고와 텍스트를 한 줄로 배치
-  alignItems: 'center',       // 세로 중앙 정렬
-},
-loadingLogo: {
-  width: 80,                  // 로고 크기 조정
-  height: 80,                 // 로고 크기 조정
-},
-loadingText: {
-  fontSize: 50,    
-  fontWeight: 'bold',           // 텍스트 크기
-  color: '#FFFFFF',
-  marginLeft: 8,              // 로고와 텍스트 간격 최소화
-},
-loadingSpinner: {
-  marginTop: 20,
-},
+
+  // 헤더 스타일
+  headerContainer: {
+    marginBottom: scale(32), // 기존 24에서 32로 수정
+    alignItems: 'center',
+  },
 });
