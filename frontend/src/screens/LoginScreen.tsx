@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
   TextInput, 
   TouchableOpacity, 
   Image, 
-  StyleSheet, 
   Dimensions 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 import { globalStyles } from '../styles/globalStyles';
+
 // Constants
-const { width, height } = Dimensions.get('window');
-const SCALE_FACTOR = 375; // Base width for scaling
+const { width } = Dimensions.get('window');
+const SCALE_FACTOR = 375;
 const SOCIAL_ICONS = {
   apple: require('../../assets/apple.png'),
   google: require('../../assets/google.png'),
@@ -22,7 +23,7 @@ const SOCIAL_ICONS = {
 // Utility function
 const scale = (size: number) => (width / SCALE_FACTOR) * size;
 
-// Reusable Components
+// Header
 const HeaderSection = () => (
   <>
     <Text style={globalStyles.title}>Sign In</Text>
@@ -32,26 +33,7 @@ const HeaderSection = () => (
   </>
 );
 
-const InputField = ({ label, placeholder, secure, navigation }) => (
-  <View style={globalStyles.inputContainer}>
-    <Text style={globalStyles.label}>{label}</Text>
-    <TextInput
-      style={globalStyles.input}
-      placeholder={placeholder}
-      secureTextEntry={secure}
-      accessibilityLabel={`Enter ${label.toLowerCase()}`}
-    />
-    {label === 'Password' && (
-      <TouchableOpacity
-        style={globalStyles.forgotPassword}
-        onPress={() => navigation.navigate('NewPassword')}
-      >
-        <Text style={globalStyles.forgotPasswordText}>Forgot Password?</Text>
-      </TouchableOpacity>
-    )}
-  </View>
-);
-
+// 소셜 로그인 아이콘
 const SocialSignInSection = () => (
   <>
     <View style={globalStyles.socialSignInContainer}>
@@ -59,7 +41,6 @@ const SocialSignInSection = () => (
       <Text style={globalStyles.socialSignInText}>Or sign in with</Text>
       <View style={globalStyles.divider} />
     </View>
-
     <View style={globalStyles.socialButtonsContainer}>
       {Object.entries(SOCIAL_ICONS).map(([platform, source]) => (
         <TouchableOpacity key={platform}>
@@ -77,26 +58,55 @@ const SocialSignInSection = () => (
 // Main Component
 const LoginScreen = () => {
   const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSignIn = () => navigation.navigate('Loading');
+  const handleSignIn = async () => {
+    try {
+      const res = await axios.post('http://localhost:8000/login', {
+        email,
+        password,
+      });
+      console.log('Login success:', res.data);
+      navigation.navigate('Loading');
+    } catch (error) {
+      console.error('Login failed:', error.response?.data || error.message);
+    }
+  };
 
   return (
     <View style={globalStyles.container}>
       <HeaderSection />
 
-      <InputField 
-        label="Email" 
-        placeholder="Email" 
-        navigation={navigation} 
-      />
-      <InputField 
-        label="Password" 
-        placeholder="Password" 
-        secure 
-        navigation={navigation} 
-      />
+      <View style={globalStyles.inputContainer}>
+        <Text style={globalStyles.label}>Email</Text>
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          style={globalStyles.input}
+          keyboardType="email-address"
+        />
+      </View>
 
-      <TouchableOpacity 
+      <View style={globalStyles.inputContainer}>
+        <Text style={globalStyles.label}>Password</Text>
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Password"
+          secureTextEntry
+          style={globalStyles.input}
+        />
+        <TouchableOpacity
+          style={globalStyles.forgotPassword}
+          onPress={() => navigation.navigate('NewPassword')}
+        >
+          <Text style={globalStyles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity
         style={globalStyles.button}
         onPress={handleSignIn}
         accessibilityRole="button"
@@ -106,7 +116,7 @@ const LoginScreen = () => {
 
       <SocialSignInSection />
 
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate('SignUp')}
         accessibilityRole="link"
       >
@@ -118,7 +128,5 @@ const LoginScreen = () => {
     </View>
   );
 };
-
-// Styles
 
 export default LoginScreen;

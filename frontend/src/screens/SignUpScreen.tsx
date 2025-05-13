@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CheckBox from 'react-native-check-box';
+import axios from 'axios';
 import { globalStyles } from '../styles/globalStyles';
 
 const SignUpScreen = () => {
@@ -11,7 +12,7 @@ const SignUpScreen = () => {
   const [isChecked, setIsChecked] = useState(false);
   const navigation = useNavigation();
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (!nickname || !email || !password) {
       Alert.alert('Error', 'All fields are required');
       return;
@@ -20,8 +21,22 @@ const SignUpScreen = () => {
       Alert.alert('Error', 'You must agree with the terms and conditions');
       return;
     }
-    Alert.alert('Success', 'Account created successfully!');
-    navigation.navigate('Login');
+
+    try {
+      const response = await axios.post('http://localhost:8000/signup', {
+        nickname,
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        Alert.alert('Success', 'Account created successfully!');
+        navigation.navigate('Login');
+      }
+    } catch (error) {
+      console.error('Signup failed:', error.response?.data || error.message);
+      Alert.alert('Error', 'Failed to sign up. Try again.');
+    }
   };
 
   return (
