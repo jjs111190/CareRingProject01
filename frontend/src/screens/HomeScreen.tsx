@@ -5,15 +5,17 @@ import PostCard from '../components/PostCard';
 const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
+      {/* ✅ 상단 헤더 */}
       <View style={styles.header}>
         <Text style={styles.title}>CareRing</Text>
-        {/* Ionicons 대신 이미지 아이콘 사용 */}
         <Image
-          source={require('../../assets/chatbubble.png')} // 아이콘 경로 수정 필요
+          source={require('../../assets/chatbubble.png')} // 아이콘
           style={styles.icon}
         />
       </View>
-      <ScrollView>
+
+      {/* ✅ 피드 */}
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         <PostCard />
         <PostCard image="https://via.placeholder.com/300" />
         <PostCard />
@@ -31,17 +33,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#FFFFFF',
   },
-  title: {
-    fontSize: 28,
+   title: {
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#678CC8',
+     padding: 20,
   },
   icon: {
     width: 24,
     height: 24,
+    marginRight: 15,
     tintColor: '#678CC8', // 아이콘 색상 변경
   },
 });

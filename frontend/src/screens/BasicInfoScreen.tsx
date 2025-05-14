@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { globalStyles } from '../styles/globalStyles';
 
 const BasicInfoScreen: React.FC = () => {
@@ -12,18 +14,68 @@ const BasicInfoScreen: React.FC = () => {
   const [weight, setWeight] = useState<string>('');
   const navigation = useNavigation();
 
-  const handleNext = () => {
-    if (!name || !birthDate || !gender || !height || !weight) {
-      Alert.alert('Error', 'Please fill out all fields.');
-      return;
-    }
+  // ✅ 로그인된 유저의 BasicInfo가 있는지 확인
+  useEffect(() => {
+    const checkBasicInfo = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        console.log('Token from storage (GET):', token);
+        if (!token) return;
+
+        const res = await axios.get('http://10.0.2.2:8000/basic-info/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.status === 200 && res.data?.name) {
+          navigation.navigate('Lifestyle');
+        }
+      } catch (err) {
+        console.log('No existing basic info, continue.');
+      }
+    };
+
+    checkBasicInfo();
+  }, []);
+
+  const handleNext = async () => {
+  if (!name || !birthDate || !gender || !height || !weight) {
+    Alert.alert('Error', 'Please fill out all fields.');
+    return;
+  }
+
+  try {
+    const token = await AsyncStorage.getItem('token');
+    console.log("🛰️ Sending token in request:", token); // ✅ [5] 전송 직전 토큰 로그
+
+    await axios.post(
+      'http://10.0.2.2:8000/basic-info',
+      {
+        name,
+        birth_date: birthDate,
+        gender,
+        height: parseFloat(height),
+        weight: parseFloat(weight),
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,  // ✅ "Bearer " 포함 필수
+        },
+      }
+    );
+
     navigation.navigate('Lifestyle');
-  };
+  } catch (err) {
+    console.error('Failed to save basic info:', err.response?.data || err.message);
+    Alert.alert('Error', 'Failed to save basic info.');
+  }
+};
 
   return (
     <View style={globalStyles.container}>
       {/* Back Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={{ position: 'absolute', top: 30, left: 20 }}
         onPress={() => navigation.navigate('Login')}
       >
@@ -35,7 +87,7 @@ const BasicInfoScreen: React.FC = () => {
 
       {/* Profile Picture */}
       <TouchableOpacity style={globalStyles.profileImageContainer}>
-        <Image 
+        <Image
           source={require('../../assets/user-placeholder.png')}
           style={globalStyles.profileImage}
         />
@@ -45,10 +97,10 @@ const BasicInfoScreen: React.FC = () => {
       {/* Name */}
       <View style={globalStyles.inputContainer}>
         <Text style={globalStyles.label}>Name</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={name} 
-          onChangeText={setName} 
+        <TextInput
+          style={globalStyles.input}
+          value={name}
+          onChangeText={setName}
         />
       </View>
 
@@ -56,11 +108,11 @@ const BasicInfoScreen: React.FC = () => {
       <View style={globalStyles.rowContainer}>
         <View style={[globalStyles.inputContainer, { flex: 1, marginRight: 8 }]}>
           <Text style={globalStyles.label}>Date of birth</Text>
-          <TextInput 
-            style={globalStyles.input} 
-            placeholder="YYYY-MM-DD" 
-            value={birthDate} 
-            onChangeText={setBirthDate} 
+          <TextInput
+            style={globalStyles.input}
+            placeholder="YYYY-MM-DD"
+            value={birthDate}
+            onChangeText={setBirthDate}
           />
         </View>
         <View style={[globalStyles.inputContainer, { flex: 1, marginLeft: 8 }]}>
@@ -83,10 +135,10 @@ const BasicInfoScreen: React.FC = () => {
       {/* Height */}
       <View style={globalStyles.inputContainer}>
         <Text style={globalStyles.label}>Height</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={height} 
-          onChangeText={setHeight} 
+        <TextInput
+          style={globalStyles.input}
+          value={height}
+          onChangeText={setHeight}
         />
         <Text style={globalStyles.unitText}>cm</Text>
       </View>
@@ -94,10 +146,10 @@ const BasicInfoScreen: React.FC = () => {
       {/* Weight */}
       <View style={globalStyles.inputContainer}>
         <Text style={globalStyles.label}>Weight</Text>
-        <TextInput 
-          style={globalStyles.input} 
-          value={weight} 
-          onChangeText={setWeight} 
+        <TextInput
+          style={globalStyles.input}
+          value={weight}
+          onChangeText={setWeight}
         />
         <Text style={globalStyles.unitText}>kg</Text>
       </View>

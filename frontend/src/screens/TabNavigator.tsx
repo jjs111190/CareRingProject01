@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Keyboard
+} from 'react-native';
+
 import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen';
+import CalendarScreen from './CalendarScreen'; // ❌ 경로 꼭 확인
 
+// 예시 AI Photo
 const AIPhotoScreen = () => (
   <View style={styles.screen}>
     <Text>AI Photo</Text>
-  </View>
-);
-const CalendarScreen = () => (
-  <View style={styles.screen}>
-    <Text>Calendar</Text>
   </View>
 );
 
@@ -21,18 +26,41 @@ const CustomTabButton = ({ onPress }) => (
   </TouchableOpacity>
 );
 
-const Tab = createBottomTabNavigator();
-
-// 커스텀 아이콘 컴포넌트 (이미지 사용)
 const CustomIcon = ({ source }) => (
   <View style={styles.iconContainer}>
     <Image source={source} style={styles.iconImage} />
   </View>
 );
 
+const Tab = createBottomTabNavigator();
+
 const TabNavigator = () => {
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   return (
-    <Tab.Navigator screenOptions={{ tabBarShowLabel: false, tabBarStyle: styles.tabBar }}>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarShowLabel: false,
+        tabBarStyle: [
+          styles.tabBar,
+          isKeyboardVisible ? { display: 'none' } : null
+        ],
+      }}
+    >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
@@ -61,7 +89,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Add"
-        component={HomeScreen}
+        component={HomeScreen} // 📌 나중에 Add 전용 화면으로 교체 가능
         options={{
           headerShown: false,
           tabBarButton: (props) => <CustomTabButton {...props} />,
@@ -82,17 +110,17 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}  // ProfileScreen으로 설정
+        component={ProfileScreen}
         options={{
           headerShown: false,
           tabBarIcon: () => (
-          <View style={styles.iconContainer}>
-            <CustomIcon source={require('../../assets/profile.png')} />
-            <Text style={styles.iconText}>Profile</Text>
-        </View>
-      ),
-    }}
-    />
+            <View style={styles.iconContainer}>
+              <CustomIcon source={require('../../assets/profile.png')} />
+              <Text style={styles.iconText}>Profile</Text>
+            </View>
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
@@ -104,16 +132,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabBar: {
-    position: 'absolute',
-    bottom: 10,
-    left: 20,
-    right: 20,
-    elevation: 0,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    height: 70,
-    paddingBottom: 10,
-  },
+  position: 'absolute',
+  bottom: 0,           // 👈 완전히 하단에 붙임
+  left: 0,             // 👈 양 옆도 화면 끝까지
+  right: 0,
+  elevation: 0,
+  backgroundColor: '#FFFFFF',
+  borderTopLeftRadius: 0,
+  borderTopRightRadius: 0,
+  height: 60,          // 👈 높이는 조금 낮춰도 되고 유지해도 됨
+  paddingBottom: 5,    // 👈 필요시 조정
+},
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',

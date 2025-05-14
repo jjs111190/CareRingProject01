@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // 추가
 import { globalStyles } from '../styles/globalStyles';
 
 const IntroStep3Screen: React.FC = () => {
@@ -10,8 +11,16 @@ const IntroStep3Screen: React.FC = () => {
     navigation.navigate('Home');
   };
 
-  const handleNext = () => {
-    navigation.navigate('Home');
+  const handleNext = async () => {
+    const userEmail = await AsyncStorage.getItem('userEmail'); // 로그인 시 저장된 이메일 사용
+    if (userEmail) {
+      await AsyncStorage.setItem(`introSeen-${userEmail}`, 'true');
+    }
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
   };
 
   const handlePrev = () => {
@@ -46,25 +55,16 @@ const IntroStep3Screen: React.FC = () => {
 
       {/* 페이지 인디케이터와 버튼 */}
       <View style={styles.navigationContainer}>
-        {/* 왼쪽 버튼 */}
         <TouchableOpacity onPress={handlePrev}>
-          <Image 
-            source={require('../../assets/left.png')} // 왼쪽 화살표 버튼 이미지
-            style={styles.imageButtonOutline}
-          />
+          <Image source={require('../../assets/left.png')} style={styles.imageButtonOutline} />
         </TouchableOpacity>
-        
-        {/* 페이지 인디케이터 */}
+
         <View style={[styles.indicator, { backgroundColor: '#D1D5DB' }]} />
         <View style={[styles.indicator, { backgroundColor: '#D1D5DB' }]} />
         <View style={[styles.indicator, { backgroundColor: '#678CC8' }]} />
-        
-        {/* 오른쪽 버튼 */}
+
         <TouchableOpacity onPress={handleNext}>
-          <Image 
-            source={require('../../assets/right.png')} // 오른쪽 화살표 버튼 이미지
-            style={styles.imageButtonFilled}
-          />
+          <Image source={require('../../assets/right.png')} style={styles.imageButtonFilled} />
         </TouchableOpacity>
       </View>
     </View>
