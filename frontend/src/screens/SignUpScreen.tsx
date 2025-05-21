@@ -21,7 +21,7 @@ const SignUpScreen = () => {
 
     try {
       // 1️⃣ 회원가입 요청
-      const signupRes = await axios.post('http://10.0.2.2:8000/signup', {
+      const signupRes = await axios.post('https://mycarering.loca.lt/signup', {
         nickname,
         email,
         password,
@@ -29,7 +29,7 @@ const SignUpScreen = () => {
 
       if (signupRes.status === 200) {
         // 2️⃣ 자동 로그인
-        const loginRes = await axios.post('http://10.0.2.2:8000/login', {
+        const loginRes = await axios.post('https://mycarering.loca.lt/login', {
           email,
           password,
         });

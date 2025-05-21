@@ -36,7 +36,7 @@ const LifestyleScreen: React.FC = () => {
 
         if (!token) return;
 
-        const res = await axios.get('http://10.0.2.2:8000/lifestyle/me', {
+        const res = await axios.get('https://mycarering.loca.lt/lifestyle/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -61,17 +61,23 @@ const LifestyleScreen: React.FC = () => {
   }, []);
 
   const handleFinish = async () => {
-    if (!medicalHistory || !healthGoals || !dietTracking || !sleepHabits || !smokingAlcohol) {
-      Alert.alert('Error', 'Please fill out all fields.');
-      return;
-    }
+    if (
+  !medicalHistory.trim() ||
+  !healthGoals.trim() ||
+  !dietTracking.trim() ||
+  !sleepHabits.trim() ||
+  !smokingAlcohol.trim()
+) {
+  Alert.alert('Error', 'Please fill out all fields.');
+  return;
+}
 
     try {
       const token = await AsyncStorage.getItem('token');
       console.log("📤 Sending token (POST):", token);
 
       await axios.post(
-        'http://10.0.2.2:8000/lifestyle',
+        'https://mycarering.loca.lt/lifestyle',
         {
           medical_history: medicalHistory,
           health_goals: healthGoals,
@@ -187,6 +193,7 @@ const localStyles = StyleSheet.create({
     flexGrow: 1,
     padding: scale(16),
     paddingTop: scale(70),
+    paddingHorizontal: scale(16),
   },
   backButton: {
     position: 'absolute',

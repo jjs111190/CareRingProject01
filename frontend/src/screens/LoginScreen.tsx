@@ -71,7 +71,7 @@ const LoginScreen = () => {
     }
 
     try {
-      const res = await axios.post('http://10.0.2.2:8000/login', {
+      const res = await axios.post('https://mycarering.loca.lt/login', {
         email,
         password
       });

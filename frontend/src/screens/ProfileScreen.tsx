@@ -1,61 +1,92 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  TextInput,
-  Alert,
+  View, Text, Image, StyleSheet, TouchableOpacity, ScrollView,
+  KeyboardAvoidingView, Platform, TextInput, Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useNavigation, useRoute } from '@react-navigation/native';
+
+interface Post {
+  id: number;
+  image_url: string;
+  likes: number;
+}
 
 const ProfileScreen: React.FC = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+  const [userId, setUserId] = useState<number | null>(null);
   const [nickname, setNickname] = useState('');
   const [about, setAbout] = useState('');
   const [editingAbout, setEditingAbout] = useState(false);
   const [newAbout, setNewAbout] = useState('');
   const [healthInfo, setHealthInfo] = useState<any>({});
-  const [posts] = useState(new Array(6).fill(null));
+  const [posts, setPosts] = useState<Post[]>([]);
   const [joinText, setJoinText] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const token = await AsyncStorage.getItem('token');
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-
+    const initAndFetch = async () => {
       try {
-        const userRes = await axios.get('http://10.0.2.2:8000/users/me', config);
-        setNickname(userRes.data.nickname);
-        setAbout(userRes.data.about || '');
+        const token = await AsyncStorage.getItem('token');
+        if (!token) return;
 
-        const joinDate = new Date(userRes.data.created_at);
-        const formattedDate = joinDate.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        });
-        setJoinText(`#${userRes.data.id} • ${formattedDate}`);
+        const config = { headers: { Authorization: `Bearer ${token}` } };
 
-        const lifestyleRes = await axios.get('http://10.0.2.2:8000/lifestyle/me', config);
+        let finalUserId: number;
+
+        // ✅ userId가 넘어온 경우 (다른 유저 프로필)
+        if ((route.params as any)?.userId) {
+          finalUserId = (route.params as any).userId;
+        } else {
+          // ✅ 내 프로필 보기 (탭에서 접근한 경우)
+          const meRes = await axios.get(`https://mycarering.loca.lt/users/me`, config);
+          finalUserId = meRes.data.id;
+        }
+
+        setUserId(finalUserId);
+
+        const [userRes, lifestyleRes, basicInfoRes, postRes] = await Promise.all([
+          axios.get(`https://mycarering.loca.lt/users/${finalUserId}`, config),
+          axios.get(`https://mycarering.loca.lt/lifestyle/${finalUserId}`, config),
+          axios.get(`https://mycarering.loca.lt/basic-info/${finalUserId}`, config),
+          axios.get(`https://mycarering.loca.lt/posts/user/${finalUserId}`, config),
+        ]);
+
+        const user = userRes.data;
+        setNickname(user.nickname);
+        setAbout(user.about || '');
+
+        const joinDate = new Date(user.created_at);
+        setJoinText(joinDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric',
+        }));
+
         setHealthInfo(lifestyleRes.data);
-      } catch (error) {
-        console.error('Failed to fetch profile data:', error);
+
+        const relativePath = basicInfoRes.data.image_url;
+        if (relativePath) {
+          setImageUrl(`https://mycarering.loca.lt${relativePath}`);
+        }
+
+        setPosts(postRes.data || []);
+      } catch (e: any) {
+        console.error('🔴 Profile fetch error:', e.response?.data || e.message);
+        Alert.alert('Error', 'Failed to load profile. Please try again.');
       }
     };
 
-    fetchData();
+    initAndFetch();
   }, []);
 
   const handleSaveAbout = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+
       const res = await axios.put(
-        'http://10.0.2.2:8000/users/me',
+        'https://mycarering.loca.lt/users/me',
         { about: newAbout },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -65,7 +96,7 @@ const ProfileScreen: React.FC = () => {
         setEditingAbout(false);
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to update about info');
+      Alert.alert('Error', 'Failed to update About section');
     }
   };
 
@@ -76,6 +107,7 @@ const ProfileScreen: React.FC = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
+        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>MY Profile</Text>
           <View style={styles.iconGroup}>
@@ -84,30 +116,17 @@ const ProfileScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Profile */}
         <View style={styles.profileCard}>
-          <Image source={require('../../assets/user-icon.png')} style={styles.profileImage} />
+          <Image
+            source={imageUrl ? { uri: imageUrl } : require('../../assets/user-icon.png')}
+            style={styles.profileImage}
+          />
           <Text style={styles.userName}>{nickname}</Text>
           <Text style={styles.joinDate}>Joined {joinText} • Student</Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>100</Text>
-              <Text style={styles.statLabel}>Following</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>50</Text>
-              <Text style={styles.statLabel}>Followers</Text>
-            </View>
-          </View>
-          <View style={styles.buttonGroup}>
-            <TouchableOpacity style={[styles.button, styles.followButton]}>
-              <Text style={styles.buttonText}>Following</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.messageButton]}>
-              <Text style={[styles.buttonText, { color: 'white' }]}>Message</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
+        {/* About */}
         <View style={styles.sectionBox}>
           <View style={styles.aboutHeader}>
             <Text style={styles.sectionTitle}>About</Text>
@@ -126,6 +145,7 @@ const ProfileScreen: React.FC = () => {
                 style={[styles.aboutText, { borderBottomWidth: 1, borderColor: '#678CC8', paddingVertical: 6 }]}
                 value={newAbout}
                 onChangeText={setNewAbout}
+                multiline
                 placeholder="Write something about yourself"
                 placeholderTextColor="#AAA"
               />
@@ -145,29 +165,39 @@ const ProfileScreen: React.FC = () => {
           )}
         </View>
 
+        {/* Health Info */}
         <View style={styles.sectionBox}>
           <Text style={styles.sectionTitle}>My Health Information</Text>
           {Object.entries(healthInfo)
             .filter(([key]) => key !== 'id' && key !== 'user_id')
             .map(([key, value]) => (
-            value && (
-           <View style={styles.infoItem} key={key}>
-              <Text style={styles.infoTitle}>{key.replace(/_/g, ' ')}</Text>
-                <Text style={styles.infoContent}>{value}</Text>
-            </View>
-          )
-      ))}
+              value && (
+                <View style={styles.infoItem} key={key}>
+                  <Text style={styles.infoTitle}>{key.replace(/_/g, ' ')}</Text>
+                  <Text style={styles.infoContent}>{String(value)}</Text>
+                </View>
+              )
+            ))}
         </View>
 
+        {/* Posts */}
         <View style={styles.sectionBox}>
           <Text style={styles.sectionTitle}>Post</Text>
           <View style={styles.postsGrid}>
-            {posts.map((_, index) => (
-              <TouchableOpacity key={index} style={styles.postItem} activeOpacity={0.8}>
-                <Image source={require('../../assets/pill.png')} style={styles.postImage} />
+            {posts.map((post) => (
+              <TouchableOpacity
+                key={post.id}
+                style={styles.postItem}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('PostDetail', { postId: post.id })}
+              >
+                <Image
+                  source={{ uri: `https://mycarering.loca.lt${post.image_url}` }}
+                  style={styles.postImage}
+                />
                 <View style={styles.postOverlay}>
                   <Image source={require('../../assets/heart.png')} style={styles.postIcon} />
-                  <Text style={styles.postLikes}>152</Text>
+                  <Text style={styles.postLikes}>{post.likes}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -184,11 +214,11 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: 'bold', color: '#678CC8' },
   iconGroup: { flexDirection: 'row' },
   iconImage: { width: 24, height: 24, marginLeft: 15, tintColor: '#678CC8' },
-  profileCard: { backgroundColor: 'white', borderRadius: 12, padding: 20, alignItems: 'center', marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+  profileCard: { backgroundColor: 'white', borderRadius: 12, padding: 20, alignItems: 'center', marginBottom: 20 },
   profileImage: { width: 80, height: 80, borderRadius: 40, marginBottom: 15 },
   userName: { fontSize: 20, fontWeight: 'bold', marginBottom: 4, color: '#333' },
   joinDate: { color: '#888', fontSize: 14, marginBottom: 20 },
-  statsContainer: { flexDirection: 'row', justifyContent: 'center', width: '100%', marginBottom: 20, borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#EEE', paddingVertical: 15 },
+  statsContainer: { flexDirection: 'row', justifyContent: 'center', width: '100%', marginBottom: 20 },
   statItem: { alignItems: 'center', marginHorizontal: 25 },
   statNumber: { fontSize: 18, fontWeight: 'bold', color: '#678CC8' },
   statLabel: { color: '#888', fontSize: 14 },
@@ -197,7 +227,7 @@ const styles = StyleSheet.create({
   followButton: { backgroundColor: '#F0F0F0' },
   messageButton: { backgroundColor: '#678CC8' },
   buttonText: { fontSize: 14, fontWeight: '600', color: '#333' },
-  sectionBox: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+  sectionBox: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 20 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#678CC8', marginBottom: 15 },
   aboutHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   editIcon: { width: 20, height: 20, tintColor: '#678CC8' },
@@ -206,7 +236,7 @@ const styles = StyleSheet.create({
   infoTitle: { fontWeight: '600', color: '#333', marginBottom: 5, fontSize: 15 },
   infoContent: { color: '#666', fontSize: 14, lineHeight: 20 },
   postsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'flex-start' },
-  postItem: { width: '32%', marginBottom: 6, position: 'relative', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+  postItem: { width: '32%', marginBottom: 6, position: 'relative' },
   postImage: { width: '100%', aspectRatio: 1, borderRadius: 12, backgroundColor: '#EEE' },
   postOverlay: { position: 'absolute', bottom: 6, right: 6, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 12 },
   postIcon: { width: 14, height: 14, tintColor: 'white', marginRight: 4 },

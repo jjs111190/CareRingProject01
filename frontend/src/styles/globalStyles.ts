@@ -30,11 +30,11 @@ export const globalStyles = StyleSheet.create({
 
   // 입력 필드 스타일
   inputContainer: {
-    width: '90%',
+    width: '100%',
     marginBottom: scale(12),
   },
   formGroup: {
-    width: '90%',
+    width: '100%',
     marginBottom: scale(16),
   },
   halfInputLeft: {
@@ -54,6 +54,8 @@ export const globalStyles = StyleSheet.create({
     height: scale(48),
     backgroundColor: '#F9FAFB',
     paddingRight: scale(40), // 추가 수정
+    width: '100%', // ✅ 추가
+
   },
   label: {
     color: '#374151',
@@ -216,4 +218,30 @@ export const globalStyles = StyleSheet.create({
     marginBottom: scale(32), // 기존 24에서 32로 수정
     alignItems: 'center',
   },
+  genderButtonGroup: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 4,
+},
+genderButton: {
+  flex: 1,
+  height: scale(48),
+  marginHorizontal: 4,
+  borderWidth: 1,
+  borderColor: '#D1D5DB',
+  borderRadius: 8,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+genderButtonSelected: {
+  backgroundColor: '#678CC8',
+  borderColor: '#678CC8',
+},
+genderText: {
+  color: '#374151',
+},
+genderTextSelected: {
+  color: '#fff',
+  fontWeight: 'bold',
+},
 });

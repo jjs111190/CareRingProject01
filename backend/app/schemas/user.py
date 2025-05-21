@@ -21,3 +21,15 @@ class UserResponse(BaseModel):
 class PasswordResetRequest(BaseModel):
     email: EmailStr
     new_password: str
+# 🔧 user.py (현재 파일 상단에 추가)
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    nickname: str
+
+    def to_dict(self):
+        return {
+            "email": self.email,
+            "password": hash_password(self.password),  # 비밀번호 해시화
+            "nickname": self.nickname
+        }

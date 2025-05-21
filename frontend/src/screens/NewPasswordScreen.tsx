@@ -34,7 +34,7 @@ const NewPasswordScreen: React.FC = () => {
     }
 
     try {
-      const response = await axios.put('http://10.0.2.2:8000/users/reset-password', {
+      const response = await axios.put('https://mycarering.loca.lt/users/reset-password', {
         email,
         new_password: password,
       });
